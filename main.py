@@ -5,25 +5,25 @@ saveGameFile = 'save.txt'
 playersDataFile = 'playerData.txt'
 
 # Global Variables
+playersData = []
+gamesData = []
 
 # {playerdata.name = justin, play...}
 # {playerdata.name = colin, ...}
 
 def main():
-    
-    with open(playersDataFile,"r") as file:
-        playersData = str(file.read())
-    with open(saveGameFile,"r") as file:
-        gamesData = str(file.read())
 
-    playersData = playersData.split("\n")
-    gamesData = gamesData.split("\n")
+    global playersData
+    global gamesData
+
+    # Load Saved Files
+    loadSavedFiles()
 
     # Main Game Loop
     while(True):
         #asks for the users name (not case sentisive)
         #loop for finding the player (either making a new player of loading an existing one)
-        player = loadplayer(playersData)
+        player = loadplayer()
         print(player)
         # Main Menu
         textSeperator()
@@ -50,15 +50,16 @@ def main():
         # elif choice == 3:
         # elif choice == 4:
         # elif choice == 5:
+            # savePlayerData()
             
         
         # TODO: Game
 
-# TODO: Load Previous Game/player data to lists
 
 def textSeperator():
-    print('************************************************************************')
-    print('\n\n')
+    print('\n')
+    print('/************************************************************************/')
+    print('\n')
 
 class Game: # player to keep track of whos board it is
     def __init__(self, size, moves, player):
@@ -90,35 +91,59 @@ class DuckPlayer:
 
     # TODO: Save player data
 
+def loadSavedFiles():
+    global playersData
+    global gamesData
 
-def loadplayer(playersData):
+    with open(playersDataFile, "r") as file:
+        tmpPlayersData = file.read().strip().split("\n")
+    with open(saveGameFile, "r") as file:
+        gamesData = file.read().strip().split("\n")
+
+    for playerData in tmpPlayersData:
+        if playerData:
+            data = playerData.split(",")
+            playersData.append(DuckPlayer(data[0], int(data[1]), int(data[2]), int(data[3])))
+
+
+def loadplayer():
+    global playersData
     playerloaded = False
+    
     while not playerloaded:
         name = str((str(input("enter name:\t"))).lower())
         # print("name:",name)
         alreadyexists = False
         for i in playersData:
-            savedPlayer = i.split(",")
-            if savedPlayer[0] == name:
+            savedPlayer = i
+            if i.name == name:
                 alreadyexists = True
+                break
         if alreadyexists:
-            decision = (str(input(("There is already a player with the name: " + name + ", Would you like to continue as this person? (y/n)")))).lower()
+            decision = ''
             while decision not in ["y","n"]:
                 decision = (str(input(("There is already a player with the name: " + name + ", Would you like to continue as this person? (y/n)")))).lower()
             if decision == 'y':
-                player = DuckPlayer(savedPlayer[0],savedPlayer[1],savedPlayer[2],savedPlayer[3])
+                player = savedPlayer
                 playerloaded = True
             elif decision == "n":
                 continue
         elif not alreadyexists:
-            decision = (str(input(("want to make a new profile as " + name + "? (y/n)")))).lower()
+            decision = ''
             while decision not in ["y","n"]:
                 decision = (str(input(("want to make a new profile as " + name + "? (y/n)")))).lower()
             if decision == 'y':
                 player = DuckPlayer(name,0,0,0)
+                playersData.append(player)
                 playerloaded = True
             elif decision == "n":
                 continue
     return player
+
+def savePlayerData():
+    with open(playersDataFile,"w") as file:
+        for i in playersData:
+            file.write(i.name + "," + i.gamesWon + "," + i.gamesLost + "," + i.winStreak + "\n")
+            
 
 main()
