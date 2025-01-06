@@ -19,41 +19,74 @@ def main():
     # Load Saved Files
     loadSavedFiles()
 
-    # Main Game Loop
+    # Main Loop
+    # Like MAIN Main loop
+    # Contains logic on selecting the player, then goes into the game loop when the player is selected
+    # Works such that when they exit it loops back to user select
     while(True):
         #asks for the users name (not case sentisive)
         #loop for finding the player (either making a new player of loading an existing one)
         player = loadplayer()
-        print(player)
+        # print(player)
         # Main Menu
-        textSeperator()
-        print('1. New Game')
-        print('2. Load Existing Game')
-        print('3. Current Player Statistics')
-        print('4. Leaderboard')
-        # print('5. ')
-        print('5. Save and Exit')
-            # 1. New Game
-                # 1 Board Size
-            # 2. Load Game
-            # 3. Player Stats
-            # 4. Leaderboard
-            # 5. Change Player TODO Later if we have the time for the extra complexity
-            # 6. Save and Exit
-        # choice = int(input())
-        # if choice == 1:
-        #     textSeperator()
-        #     tmpBoardSize = int(input('What would you like the board size to be?'))
-            
-            # TODO: Continue Board Logic
-        # elif choice == 2:
-        # elif choice == 3:
-        # elif choice == 4:
-        # elif choice == 5:
-            # savePlayerData()
-            
+        choice = -1 # This just makes sure it goes into the loop, choice will get overwritten to not be -1
+        while choice != 5:
+            textSeperator()
+            print('1. New Game')
+                # Board Size
+            print('2. Load Existing Game')
+            print('3. Current Player Statistics')
+            print('4. Leaderboard') 
+            # print('5. ')  TODO Later if we have the time for the extra complexity to change the player
+            print('5. Save and Exit')
         
-        # TODO: Game
+            choice = int(input('Choose an option: '))
+
+            # IMPORTANT: instead of having seperate new game and load functions, have one load game function
+            # then when you run a new game you can just load a preset new game loadout
+
+            if choice == 1:
+                textSeperator()
+                print("pretend like it ran the game (increases gameswon by 1)")
+                player.gamesWon += 1
+                tmpBoardSize = int(input('What would you like the board size to be?'))
+                
+                # TODO: Continue Board Logic
+
+                #  to Generate board: (2d list)
+                    # determine how many ducks there will be
+                    # 
+                # while Game Loop
+                    # Print board
+                    # Ask for a place on the board to shoot
+                    # Check if the player has won
+
+                #       stored as board[x][y] << indexes
+                #       inside there is whether it is a duck itself, and how many ducks are in the 3x3
+                #      [[True,3],[False,0]],[[True,6],[False,0]]
+                #          ^ for example, this is at the coordinates (0,0), is a duck, and has 3 in the 3x3
+
+                 
+            # elif choice == 2:
+            #     # TODO  Load Game
+                
+            elif choice == 3:
+                textSeperator()
+                print('Player Statistics')
+                print('Name:', player.name)
+                print('Games Won:', player.gamesWon)
+                print('Games Lost:', player.gamesLost)
+                print('Win Streak:', player.winStreak)
+            # elif choice == 4:
+                # leaderboard functionality to be added
+            elif choice == 5:
+                savePlayerData()
+                break
+                
+            
+            # TODO: Game Loop
+
+            
 
 
 def textSeperator():
@@ -84,27 +117,12 @@ class Game: # player to keep track of whos board it is
 class DuckPlayer:
     def __init__(self, name, gamesWon, gamesLost, winStreak):
         self.name = name
-        self.WinLossPercentage = ((gamesWon / (gamesWon + gamesLost)) * 100).toFixed(2)
+        #self.WinRate = 1 #((gamesWon / (gamesWon + gamesLost)) * 100).toFixed(2)
         self.gamesWon = gamesWon
         self.gamesLost = gamesLost
         self.winStreak = winStreak
 
     # TODO: Save player data
-
-def loadSavedFiles():
-    global playersData
-    global gamesData
-
-    with open(playersDataFile, "r") as file:
-        tmpPlayersData = file.read().strip().split("\n")
-    with open(saveGameFile, "r") as file:
-        gamesData = file.read().strip().split("\n")
-
-    for playerData in tmpPlayersData:
-        if playerData:
-            data = playerData.split(",")
-            playersData.append(DuckPlayer(data[0], int(data[1]), int(data[2]), int(data[3])))
-
 
 def loadplayer():
     global playersData
@@ -140,10 +158,24 @@ def loadplayer():
                 continue
     return player
 
+def loadSavedFiles():
+    global playersData
+    global gamesData
+
+    with open(playersDataFile, "r") as file:
+        tmpPlayersData = file.read().strip().split("\n")
+    with open(saveGameFile, "r") as file:
+        gamesData = file.read().strip().split("\n")
+
+    for playerData in tmpPlayersData:
+        if playerData:
+            data = playerData.split(",")
+            playersData.append(DuckPlayer(data[0], int(data[1]), int(data[2]), int(data[3])))
+
 def savePlayerData():
     with open(playersDataFile,"w") as file:
         for i in playersData:
-            file.write(i.name + "," + i.gamesWon + "," + i.gamesLost + "," + i.winStreak + "\n")
+            file.write(i.name + "," + str(i.gamesWon) + "," + str(i.gamesLost) + "," + str(i.winStreak) + "\n")
             
 
 main()
