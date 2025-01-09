@@ -1,9 +1,11 @@
 import random
 from prettytable import PrettyTable
 
+from utils import *
+
 # Config
-saveGameFile = 'save.txt'
-playersDataFile = 'playerData.txt'
+saveGameFile = 'save/save.txt'
+playersDataFile = 'save/playerData.txt'
 
 # Global Variables
 playersData = []
@@ -11,7 +13,6 @@ gamesData = []
 
 usernameRegex = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_-")
 letterLegend = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j']
-
 
 def main():
 
@@ -21,25 +22,21 @@ def main():
     # Load Saved Files
     DuckPlayer.loadSavedFiles()
 
-    # Main Loop
-    # Like MAIN Main loop
+    # Main Game Loop
     # Contains logic on selecting the player, then goes into the game loop when the player is selected
     # Works such that when they exit it loops back to user select
     while(True):
         #asks for the users name (not case sentisive)
         #loop for finding the player (either making a new player of loading an existing one)
         player = DuckPlayer.loadplayer()
-        # print(player)
         # Main Menu
         choice = -1 # This just makes sure it goes into the loop, choice will get overwritten to not be -1
         while choice != 5:
             textSeperator()
             print('1. New Game')
-                # Board Size
             print('2. Load Existing Game')
             print('3. Current Player Statistics')
             print('4. Leaderboard') 
-            # print('5. ')  TODO Later if we have the time for the extra complexity to change the player
             print('5. Save and Exit')
         
             choice = int(input('Choose an option: '))
@@ -49,30 +46,41 @@ def main():
 
             if choice == 1:
                 textSeperator()
-                # print("pretend like it ran the game (increases gameswon by 1)")
-                # player.gamesWon += 1
+
                 for h,i in enumerate(range(5,11)):
                     print(str(h+1)+": "+str(i)+"x"+str(i))
                 tmpBoardSize = int(input('What difficulty do you want to play?'))
-                
-                # TODO: Continue Board Logic    
 
-                # initializes the game object
-                game = Game(tmpBoardSize+4,0,player.name)
+                # initializes the game object (with 0 as a temporary placeholder for ducknum)
+                game = Game(tmpBoardSize+4,0,player.name,0)
                 
                 # decides how many ducks there should be, minimum a quarter of the board, maximum half
                 numoftiles = (game.size)**2
                 numofducks = int(numoftiles//4 + (random.randint(0,100)* 0.01 * numoftiles)//4)
                 print("ducks generated:",numofducks)
+                game.numducks = numofducks
 
-                game.generateboard(numofducks)
+                game.generateboard()
 
                 print(game.board)
-                #  to Generate board: (2d list)
-                    # determine how many ducks there will be
-                    # 
-                # while Game Loop
-                    # Print board
+                
+                leave = False
+                while not leave:
+                    # print(game.board[1],"adfadfsfasdfadsasgasdf")
+                    game.printBoard()
+                    print("what action do you want to do?")
+                    print("1. reveal a position")
+                    print("2. try to guess the amounty to guess the amount")
+                    decision =  int(input)
+                    if decision == 1:
+                        print("where do you want to check? (ex. b2, h6, etc.)")
+                        move = str(input())
+                        game.makeMove(move)
+                    elif decision == 2:
+                        print("what is your guess?")
+                        guess = int(input())
+                        game.guess(guess)
+
                     # Ask for a place on the board to shoot
                     # Check if the player has won
 
@@ -95,6 +103,7 @@ def main():
 
                 input('\nPress Enter to Continue')
             elif choice == 4:
+                # TODO Add colors to the leaderboard
                 leaderboard = sorted(playersData, key=lambda x: x.gamesWon, reverse=True)
                 textSeperator()
                 print('Leaderboard:\n')
@@ -110,24 +119,32 @@ def textSeperator():
     print('\n')
 
 class Game: # player to keep track of whos board it is
-    def __init__(self, size, moves, player):
+    def __init__(self, size, moves, player, numducks):
         self.size = size
         self.board = []
         self.moves = moves
         self.player = player
+        self.numducks = numducks
 
-    # TODO: Add a check which ones are revealed and which ones are not
+    #TODO reverse the x and y of board to print that with the add_rows
+    # then add logic for what is revealed
     def printBoard(self):
         table = PrettyTable()
         tmpLegend = []
+        tmpNumLegend = []
+        # Adding the legend
         for i in range(self.size):
             tmpLegend.append(letterLegend[i])
-        table.add_row([""] + tmpLegend)
+            tmpNumLegend.append(i+1)
+        # table.add_column([""] + tmp_legend)
+                
+        table.add_column("", tmpNumLegend)
         for i in range(self.size):
-            table.add_row(i + self.board[i])
+            # tmp.extend(self.board[i])
+            table.add_column(str(i+1), self.board[i])
         print(table)
 
-    def generateboard(self,numofducks):
+    def generateboard(self):
         self.board = []
         tempCoords = []
         for x in range(self.size):
@@ -137,7 +154,7 @@ class Game: # player to keep track of whos board it is
                 tempCoords.append([x,y])
             self.board.append(column)
 
-        for i in range(numofducks):
+        for i in range(self.numducks):
             coords = random.choice(tempCoords)
             tempCoords.remove(coords)
             # print(coords,"was determined to be a duck")
@@ -161,12 +178,15 @@ class Game: # player to keep track of whos board it is
                             tempduckcount += 1
                 self.board[x][y][1] = tempduckcount
 
-    # def makeMove(self, x, y):
-    #     # TODO: Make a move on the board
+    def reveal(self, pos):
+        y = int(pos[1])-1
+        x = letterLegend.index(pos[0])
+        print(x,y)
+
     
-    # def checkWin(self):
-    #     # TODO: Check if the player has won
-    #     # idk if we should intergrate as its own or in makeMove function
+    def guess(self,guess):
+        if guess == self.numducks:
+            print("correct!")
 
     # def saveGame(self):
     #     # TODO: Save the game to a file    
@@ -247,6 +267,5 @@ def getduck(x,y,game):
         return game.board[x][y][0]
     else:
         return False
-
 
 main()
