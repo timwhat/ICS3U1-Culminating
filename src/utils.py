@@ -25,9 +25,7 @@ class Game: # player to keep track of whos board it is
         self.player = player
         self.numducks = numducks
 
-    #TODO make this generate board and have it return the thing to print
-    # then add logic for what is revealed
-    def printBoard(self):
+    def generateBoardVisuals(self):
         table = PrettyTable()
 
         tmpLetterLegend = []
@@ -35,7 +33,7 @@ class Game: # player to keep track of whos board it is
 
         # Adding the legend
         for i in range(self.size):
-            tmpLetterLegend.append(letterLegend[i])
+            tmpLetterLegend.append(' ' +letterLegend[i] + ' ')
             tmpNumLegend.append(i+1)
         table.field_names = [""] + tmpLetterLegend
                 
@@ -53,9 +51,9 @@ class Game: # player to keep track of whos board it is
                     showedRow.append("-")
 
             table.add_row([str(tmpNumLegend[i])] + showedRow, divider=True)
-        print(table)
+        return table
 
-    def generateboard(self):
+    def generateBoard(self):
         self.board = []
         tempCoords = []
         for x in range(self.size):

@@ -49,14 +49,14 @@ def main():
                 print("ducks generated:",numofducks)
                 game.numducks = numofducks
 
-                game.generateboard()
+                game.generateBoard()
 
                 print(game.board)
                 
                 leave = False
                 while not leave:
                     # print(game.board[1],"adfadfsfasdfadsasgasdf")
-                    game.printBoard()
+                    print(game.generateBoardVisuals())
                     print("what action do you want to do?")
                     print("1. reveal a position")
                     print("2. try to guess the amounty to guess the amount")
