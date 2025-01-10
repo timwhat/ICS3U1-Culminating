@@ -1,3 +1,4 @@
+import ast
 import random
 from prettytable import PrettyTable
 
@@ -53,8 +54,8 @@ def main():
 
                 print(game.board)
                 
-                leave = False
-                while not leave:
+                win = False
+                while not win:
                     # print(game.board[1],"adfadfsfasdfadsasgasdf")
                     print(game.generateBoardVisuals())
                     print("what action do you want to do?")
@@ -64,20 +65,15 @@ def main():
                     if decision == 1:
                         print("where do you want to check? (ex. b2, h6, etc.)")
                         move = str(input())
-                        game.makeMove(move)
+                        validmove = game.reveal(move)
+                        if not validmove:
+                            print("invalid input")
+                            input("press enter to continue:")       
                     elif decision == 2:
                         print("what is your guess?")
                         guess = int(input())
-                        game.guess(guess)
-
-                    # Ask for a place on the board to shoot
-                    # Check if the player has won
-
-                #       stored as board[x][y] << indexes
-                #       inside there is whether it is a duck itself, and how many ducks are in the 3x3
-                #      [[True,3],[False,0]],[[True,6],[False,0]]
-                #          ^ for example, this is at the coordinates (0,0), is a duck, and has 3 in the 3x3
-
+                        win = game.guess(guess)
+                player.gamesWon += 1
                  
             # elif choice == 2:
             #     # TODO  Load Game
@@ -102,5 +98,7 @@ def main():
             elif choice == 5:
                 DuckPlayer.savePlayerData()
 
+# main()
 
-main()
+lst = ast.literal_eval("[['Here we want everything other than the board such as stats on ducks, whos playing on this board'], ['SECOND THE ACTUAL BOARD']]") 
+print(lst[0])

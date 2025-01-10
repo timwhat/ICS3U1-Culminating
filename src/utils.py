@@ -90,12 +90,23 @@ class Game: # player to keep track of whos board it is
     def reveal(self, pos):
         y = int(pos[1])-1
         x = letterLegend.index(pos[0])
-        print(x,y)
+        print(x,y,"was revealed")
+        if self.board[x][y][2] == False and (x < self.size) and (x < self.size):
+            self.board[x][y][2] = True
+            return True
+        else:
+            return False
+
 
     
     def guess(self,guess):
         if guess == self.numducks:
             print("correct!")
+            return True
+        else:
+            print("*extremely loud incorrect buzzer noise*")
+            input("press enter to continue:")
+            return False
 
     # def saveGame(self):
     #     # TODO: Save the game to a file    
