@@ -37,7 +37,7 @@ def main():
             if choice == 1:
                 textSeperator()
 
-                for h,i in enumerate(range(5,11)):
+                for h,i in enumerate(range(boardSize)):
                     print(str(h+1)+": "+str(i)+"x"+str(i))
                 tmpBoardSize = int(input('What difficulty do you want to play?'))
 
@@ -68,11 +68,14 @@ def main():
                         validmove = game.reveal(move)
                         if not validmove:
                             print("invalid input")
-                            input("press enter to continue:")       
+                            input("press enter to continue:")      
+                        else:
+                            game.moves +=1
                     elif decision == 2:
                         print("what is your guess?")
                         guess = int(input())
                         win = game.guess(guess)
+
                 player.gamesWon += 1
                  
             # elif choice == 2:
@@ -102,3 +105,4 @@ main()
 
 # lst = ast.literal_eval("[['Here we want everything other than the board such as stats on ducks, whos playing on this board'], ['SECOND THE ACTUAL BOARD']]") 
 # print(lst[0])
+

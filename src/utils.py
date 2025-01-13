@@ -1,4 +1,5 @@
 import random
+import json
 from prettytable import PrettyTable
 
 # Global Variables
@@ -11,6 +12,8 @@ playersDataFile = 'save/playerData.txt'
 
 usernameRegex = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_-")
 letterLegend = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j']
+
+boardSize = [5,11]
 
 # Used to visually seperate text in the terminal
 def textSeperator():
@@ -98,8 +101,6 @@ class Game:
             return True
         else:
             return False
-
-
     
     def guess(self,guess):
         if guess == self.numducks:
@@ -165,14 +166,32 @@ class DuckPlayer:
 
         with open(playersDataFile, "r") as file:
             tmpPlayersData = file.read().strip().split("\n")
+
+
+        tmpGameSave = []
+        for game in gamesData:
+            tmp = {
+                'size': game.size,
+                'board': game.board,
+                'moves': game.moves,
+                'player': game.player,
+                'numducks': game.numducks   
+            }
+            tmpGameSave.append(tmp)
         with open(saveGameFile, "r") as file:
-            gamesData = file.read().strip().split("\n")
+            json.dump(tmpGameSave)
 
         for playerData in tmpPlayersData:
             if playerData:
                 data = playerData.split(",")
                 playersData.append(DuckPlayer(data[0], int(data[1]), int(data[2]), int(data[3])))
 
+    def saveGameData():
+        with open(saveGameFile, 'w') as file:
+            tmpGameData = json.load(saveGameFile)
+        
+        for gameDa
+    
     def savePlayerData():
         with open(playersDataFile,"w") as file:
             for i in playersData:
