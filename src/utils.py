@@ -12,12 +12,14 @@ playersDataFile = 'save/playerData.txt'
 usernameRegex = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_-")
 letterLegend = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j']
 
+# Used to visually seperate text in the terminal
 def textSeperator():
     print('\n')
     print('/************************************************************************/')
     print('\n')
 
-class Game: # player to keep track of whos board it is
+# player to keep track of whos board it is
+class Game: 
     def __init__(self, size, moves, player, numducks):
         self.size = size
         self.board = []
@@ -117,6 +119,7 @@ class DuckPlayer:
         self.gamesWon = gamesWon
         self.gamesLost = gamesLost
         self.winStreak = winStreak
+        # self.gamePoints = gamePoints
 
     def loadplayer():
         global playersData

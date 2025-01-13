@@ -98,7 +98,7 @@ def main():
             elif choice == 5:
                 DuckPlayer.savePlayerData()
 
-# main()
+main()
 
-lst = ast.literal_eval("[['Here we want everything other than the board such as stats on ducks, whos playing on this board'], ['SECOND THE ACTUAL BOARD']]") 
-print(lst[0])
+# lst = ast.literal_eval("[['Here we want everything other than the board such as stats on ducks, whos playing on this board'], ['SECOND THE ACTUAL BOARD']]") 
+# print(lst[0])
