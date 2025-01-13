@@ -12,7 +12,7 @@ playersData = []
 gamesData = []
 
 # Config
-saveGameFile = 'save/save.txt'
+saveGameFile = 'save/save.json'
 playersDataFile = 'save/playerData.txt'
 
 # Regex for the username
@@ -186,16 +186,23 @@ class DuckPlayer:
     def loadSavedFiles():
         global playersData
         global gamesData
+        
+        tmpPlayersData = []
 
         with open(playersDataFile, "r") as file:
             tmpPlayersData = file.read().strip().split("\n")
 
-        for game in tmpGameData:
-            game = Game(game['size'], game['board'], game['moves'], game['player'], game['numducks'])
-            gamesData.append(game)
-
+        tmpGameSave = []
         with open(saveGameFile, "r") as file:
-            json.dump(tmpGameSave)
+            tmpGameSave = json.load(file)
+
+        if isinstance(tmpGameSave, list):
+            for game_data in tmpGameSave:
+                if isinstance(game_data, dict):
+                    game = Game(game_data['size'], game_data['moves'], game_data['player'], game_data['numducks'])
+                    game.board = game_data['board']
+                    gamesData.append(game)
+
 
         for playerData in tmpPlayersData:
             if playerData:
@@ -203,8 +210,6 @@ class DuckPlayer:
                 playersData.append(DuckPlayer(data[0], int(data[1]), int(data[2]), int(data[3])))
 
     def saveGameData():
-        
-
         tmpGameSave = []
         for game in gamesData:
             tmp = {
@@ -217,7 +222,7 @@ class DuckPlayer:
             tmpGameSave.append(tmp)
 
         with open(saveGameFile, 'w') as file:
-            json.dump(tmpGameSave,file)   
+            json.dump(tmpGameSave, file, indent=4)   
     
     def writePlayersData(): # writes the contents of playersData (the global list) back to playerData.txt
         with open(playersDataFile,"w") as file:

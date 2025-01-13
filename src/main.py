@@ -38,7 +38,7 @@ def main():
                 textSeperator()
                 
                 # Asks for the board size
-                for h,i in enumerate(range(boardSize)):
+                for h,i in enumerate(range(boardSize[0],boardSize[1])):
                     print(str(h+1)+": "+str(i)+"x"+str(i))
                 tmpBoardSize = int(input('What difficulty do you want to play?: \t'))
 
