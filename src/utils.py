@@ -12,8 +12,8 @@ playersData = []
 gamesData = {}
 
 # Config
-saveGameFile = 'save/save.json'
-playersDataFile = 'save/playerData.txt'
+saveGameFile = '../save/save.json'
+playersDataFile = '../save/playerData.txt'
 
 # Regex for the username
 usernameRegex = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_-")
@@ -134,19 +134,21 @@ class Game:
             input("press enter to continue:")
             return False
 
-    # def saveGame(self): # takes the current game after the user exits and loads it into gamesData
+    def saveGame(self): # takes the current game after the user exits and loads it into gamesData
+        global gamesData
+        print(self.player)
+        gamesData[self.player] = self
         
 
     def loadGamesData(): # loads the saved games data from save.json into gamesData (dictionary)
         global gamesData
         with open(saveGameFile, "r") as file:
             tmpGameData = json.load(file)
-
-        if isinstance(tmpGameData, list):
-            for game_data in tmpGameData:
-                if isinstance(game_data, dict):
-                    game = Game(game_data['size'], game_data['board'], game_data['moves'], game_data['numducks'])
-                    gamesData.update(game_data['player'],game)
+        print("tmpgamedata is",tmpGameData)
+        for player in tmpGameData:
+                game_data = tmpGameData[player]
+                game = Game(game_data['size'], game_data['board'], game_data['moves'], game_data['numducks'])
+                gamesData[player] = game
 
     def writeGamesData(): # writes all of the game info back into save.json
         tmpGameSave = {}
@@ -158,7 +160,7 @@ class Game:
                     'moves': game.moves,
                     'numducks': game.numducks   
                 }
-            tmpGameSave.update(player,tmpData)
+            tmpGameSave[player] = tmpData
 
         with open(saveGameFile, 'w') as file:
             json.dump(tmpGameSave, file, indent=4)   
@@ -174,9 +176,8 @@ class DuckPlayer:
     def loadplayer(): # checks what player the user wants to log in as and then returns player 
         global playersData
         playerloaded = False
-        
         while not playerloaded:
-            name = inputChecker("Enter a username: ", usernameRegex).lower()
+            name = input("Enter a username: ").lower()
             # print("name:",name)
             alreadyexists = False
             for i in playersData:
