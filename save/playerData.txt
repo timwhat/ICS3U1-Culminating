@@ -1,0 +1,5 @@
+colin,0,0,0
+justin,0,0,0
+michael,0,0,0
+dominic,0,0,0
+ethan,1,0,100

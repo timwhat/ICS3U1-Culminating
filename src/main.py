@@ -30,7 +30,7 @@ def main():
         # tempgame = Game(s,b,m,n,d)
         # tempgame.saveGame()
         # print(gamesData)
-        # input("-----------------")
+
         
         # Main Menu
         choice = -1 # This just makes sure it goes into the loop, choice will get overwritten to not be -1
@@ -69,18 +69,19 @@ def main():
                 win = currentGame.runGameLoop() # Game Loop
                 if win:
                     player.scoreUpdater(currentGame.size)
-
-                
+                     
             elif choice == 2:
                 textSeperator()
                 print('Load Game')
                 if player.name in gamesData:
                     currentGame = gamesData[player.name]
-                    currentGame.runGameLoop()
+                    win = currentGame.runGameLoop()
                 else:
                     print('No game found for this player')
                     input('\nPress Enter to Continue')
                     continue
+                if win:
+                    player.scoreUpdater(currentGame.size)
                 
 
             # Current Selected Player Statistics
@@ -90,7 +91,7 @@ def main():
                 print('Name:', player.name)
                 print('Games Won:', player.gamesWon)
                 print('Games Lost:', player.gamesLost)
-                print('Win Streak:', player.winStreak)
+                print('Score:', player.score)
 
                 input('\nPress Enter to Continue')
 
@@ -107,11 +108,9 @@ def main():
             # Save and Exit
             elif choice == 5:
                 DuckPlayer.writePlayersData()
-                print(gamesData)
                 Game.writeGamesData()
-                break
-
+                return # exits out of main and stops the code
+            
 # Run the main function
 main()
-
 

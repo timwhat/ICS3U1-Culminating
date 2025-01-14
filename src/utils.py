@@ -3,6 +3,9 @@
 # Imports
 import random
 import json
+import os
+fileDirectory = os.path.dirname(os.path.abspath(__file__))
+parentDirectory = os.path.dirname(fileDirectory)
 
 # Import to make the printed table pretty
 from prettytable import PrettyTable
@@ -12,8 +15,8 @@ playersData = []
 gamesData = {}
 
 # Config
-saveGameFile = 'save/save.json'
-playersDataFile = 'save/playerData.txt'
+saveGameFile = parentDirectory+"/save/save.json"
+playersDataFile = parentDirectory+"/save/playerData.txt"
 
 # Regex for the username
 usernameRegex = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_-")
@@ -179,7 +182,7 @@ class Game:
             print(self.generateBoardVisuals())
             print("what action do you want to do?")
             print("\t1. reveal a position")
-            print("\t2. try to guess the amounty to guess the amount")
+            print("\t2. try to guess the amount")
             print("\t3. exit (game progress will be saved)")
             decision =  inputChecker('\t\t', int)
 
@@ -196,7 +199,11 @@ class Game:
                     if self.size**2 * maxGuesses - self.moves< 5:
                         print('You have', self.size**2 * maxGuesses - self.moves, 'moves left')
                 if self.moves >= self.size**2 * maxGuesses:
-                    print("You have run out of moves")
+
+                    textSeperator()
+                    print("\tGame Over")
+                    print("\tYou ran out of moves")
+                    input("\tPress enter to continue:")
                     break
             elif decision == 2:
                 print("what is your guess?")
@@ -234,14 +241,14 @@ class DuckPlayer:
                     alreadyexists = True
                     break
             if alreadyexists:
-                decision = (inputChecker("There is already a player with the name: " + name + ", Would you like to continue as this person? (y/n)", str)).lower()
+                decision = (inputChecker("There is already a player with the name: " + name + ", Would you like to continue as this person? (y/n):\t", str)).lower()
                 if decision == 'y':
                     player = savedPlayer
                     playerloaded = True
                 elif decision == "n":
                     continue
             elif not alreadyexists:
-                decision = (str(inputChecker("want to make a new profile as " + name + "? (y/n)", str))).lower()
+                decision = (str(inputChecker("want to make a new profile as " + name + "? (y/n):\t", str))).lower()
                 if decision == 'y':
                     player = DuckPlayer(name,0,0,0)
                     playersData.append(player)
@@ -266,6 +273,7 @@ class DuckPlayer:
                 file.write(i.name + "," + str(i.gamesWon) + "," + str(i.gamesLost) + "," + str(i.score) + "\n")
     
     def scoreUpdater(self,size):
+        self.gamesWon += 1
         if size == 5:
             self.score += 100
         if size == 6:
