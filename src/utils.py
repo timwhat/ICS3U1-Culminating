@@ -193,6 +193,8 @@ class Game:
                     input("press enter to continue:")      
                 else:
                     self.moves +=1
+                    if self.size**2 * maxGuesses - self.moves< 5:
+                        print('You have', self.size**2 * maxGuesses - self.moves, 'moves left')
                 if self.moves >= self.size**2 * maxGuesses:
                     print("You have run out of moves")
                     break
