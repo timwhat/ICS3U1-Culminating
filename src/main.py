@@ -10,7 +10,7 @@ def main():
     global gamesData
 
     # Load Saved Files
-    DuckPlayer.loadSavedFiles()
+    DuckPlayer.loadPlayersData()
 
     # Main Game Loop
     # Contains logic on selecting the player, then goes into the game loop when the player is selected
@@ -18,8 +18,16 @@ def main():
     while(True):
         # Asks for the users name (not case sentisive)
         # Loop for finding the player (either making a new player of loading an existing one)
-        player = DuckPlayer.loadplayer()
+        player = DuckPlayer.loadplayer() # Player log in
+        Game.loadGamesData() # Loads all of the saved games from save.json into gamesData
 
+        # print("loaded as",gamesData)
+        # tempgame = Game(10,2,"dominic",39)
+        # tempgame.saveGame()
+        # print(gamesData)
+        # Game.writeGamesData()
+        # input("-----------------")
+        
         # Main Menu
         choice = -1 # This just makes sure it goes into the loop, choice will get overwritten to not be -1
         while choice != 5:
@@ -119,4 +127,5 @@ def main():
 
 # Run the main function
 main()
+
 
