@@ -22,10 +22,14 @@ def main():
         Game.loadGamesData() # Loads all of the saved games from save.json into gamesData
 
         # print("loaded as",gamesData)
-        # tempgame = Game(10,2,"dominic",39)
+        # s = input("size: ")
+        # b = input("board: ")
+        # m = input("moves: ")
+        # n = input("name: ")
+        # d = input("ducks: ")
+        # tempgame = Game(s,b,m,n,d)
         # tempgame.saveGame()
         # print(gamesData)
-        # Game.writeGamesData()
         # input("-----------------")
         
         # Main Menu
@@ -38,7 +42,7 @@ def main():
             print('4. Leaderboard') 
             print('5. Save and Exit')
         
-            choice = int(input('Choose an option: '))
+            choice = inputChecker('Choose an option: ', int)
 
             # IMPORTANT: instead of having seperate new game and load functions, have one load game function
             # then when you run a new game you can just load a preset new game loadout
@@ -48,57 +52,36 @@ def main():
                 # Asks for the board size
                 for h,i in enumerate(range(boardSize[0],boardSize[1])):
                     print(str(h+1)+": "+str(i)+"x"+str(i))
-                tmpBoardSize = int(input('What difficulty do you want to play?: \t'))
+                tmpBoardSize = inputChecker('What difficulty do you want to play?: \t', int)
 
                 # Initializes the game object (with 0 as a temporary placeholder for ducknum)
-                game = Game(tmpBoardSize+4,0,player.name,0)
+                currentGame = Game(tmpBoardSize+4,[],0,player.name,0)
                 
                 # Decides how many ducks there should be, minimum a quarter of the board, maximum half
-                numoftiles = (game.size)**2
-                game.numducks = int(numoftiles//4 + (random.randint(0,100)* 0.01 * numoftiles)//4)
+                numoftiles = (currentGame.size)**2
+                currentGame.numducks = int(numoftiles //4 + (random.randint(0,100)* 0.01 * numoftiles)//4)
                 # print("ducks generated:",game.numducks) # Debugging
 
                 # Generates the board
-                game.generateBoard()
+                currentGame.generateBoard()
 
-                print(game.board)
+                print(currentGame.board)
+                win = currentGame.runGameLoop() # Game Loop
+                if win:
+                    player.scoreUpdater(currentGame.size)
+
                 
-                # Game Loop
-                win = False
-                while not win:
-                    # print(game.board[1],"adfadfsfasdfadsasgasdf") # Debugging
-                    print(game.generateBoardVisuals())
-                    print("what action do you want to do?")
-                    print("\t1. reveal a position")
-                    print("\t2. try to guess the amounty to guess the amount")
-                    print("\t3. exit (game progress will be saved)")
-                    decision =  int(input('\t\t'))
-
-                    # Decision Tree
-                    if decision == 1:
-                        print("where do you want to check? (ex. b2, h6, etc.)")
-                        move = str(input())
-                        validmove = game.reveal(move)
-                        if not validmove:
-                            print("invalid input")
-                            input("press enter to continue:")      
-                        else:
-                            game.moves +=1
-                    elif decision == 2:
-                        print("what is your guess?")
-                        guess = int(input())
-                        win = game.guess(guess)
-                    elif decision == 3:
-                        
-                        break
-
-                player.gamesWon += 1
-                 
-            # Load from saved game
             elif choice == 2:
                 textSeperator()
                 print('Load Game')
-                # TODO  Load Game
+                if player.name in gamesData:
+                    currentGame = gamesData[player.name]
+                    currentGame.runGameLoop()
+                else:
+                    print('No game found for this player')
+                    input('\nPress Enter to Continue')
+                    continue
+                
 
             # Current Selected Player Statistics
             elif choice == 3:
@@ -114,16 +97,19 @@ def main():
             # Leaderboard
             elif choice == 4:
                 # TODO Add colors to the leaderboard
-                leaderboard = sorted(playersData, key=lambda x: x.gamesWon, reverse=True)
+                leaderboard = sorted(playersData, key=lambda x: x.score, reverse=True)
                 textSeperator()
                 print('Leaderboard:\n')
                 for i in leaderboard:
-                    print('\t' + i.name + ": " + str(i.gamesWon))
+                    print('\t' + i.name + ": " + str(i.score))
                 input('\nPress Enter to Continue')
             
             # Save and Exit
             elif choice == 5:
-                DuckPlayer.savePlayerData()
+                DuckPlayer.writePlayersData()
+                print(gamesData)
+                Game.writeGamesData()
+                break
 
 # Run the main function
 main()

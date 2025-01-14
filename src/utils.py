@@ -12,8 +12,8 @@ playersData = []
 gamesData = {}
 
 # Config
-saveGameFile = '../save/save.json'
-playersDataFile = '../save/playerData.txt'
+saveGameFile = 'save/save.json'
+playersDataFile = 'save/playerData.txt'
 
 # Regex for the username
 usernameRegex = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_-")
@@ -24,6 +24,10 @@ letterLegend = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j']
 # Board sizes
 boardSize = [5,11]
 
+# Board difficulties hard coded as we want everyone to play on a equal playing field
+mostRevealed = .75
+maxGuesses = .25
+
 # Used to visually seperate text in the terminal
 def textSeperator():
     print('\n')
@@ -32,9 +36,9 @@ def textSeperator():
 
 # player to keep track of whos board it is
 class Game: 
-    def __init__(self, size, moves, player, numducks):
+    def __init__(self, size, board, moves, player, numducks):
         self.size = size
-        self.board = []
+        self.board = board
         self.moves = moves
         self.player = player
         self.numducks = numducks
@@ -59,20 +63,11 @@ class Game:
             # print(coords,"was determined to be a duck")
             self.board[coords[0]][coords[1]][0] = True
 
-        # TODO Delete this at the end (was a temporary visualizer before generateBoardVisuals was made)
-        # for y in range(self.size): 
-        #     temprow = ""
-        #     for x in range(self.size):
-        #         if self.board[x][y][0]:
-        #             temprow += "1"
-        #         elif not self.board[x][y][0]:
-        #             temprow = temprow + "0"
-    
         # Handles the numbers around the ducks
         for x in range(self.size):
             for y in range(self.size):
                 tempduckcount = 0
-                surroundings = giveSurroundings(x,y,self)
+                surroundings = self.giveSurroundings(x,y)
                 for row in surroundings:
                     for tile in row:
                         if tile:
@@ -147,8 +142,8 @@ class Game:
         print("tmpgamedata is",tmpGameData)
         for player in tmpGameData:
                 game_data = tmpGameData[player]
-                game = Game(game_data['size'], game_data['board'], game_data['moves'], game_data['numducks'])
-                gamesData[player] = game
+                tmpGame = Game(game_data['size'], game_data['board'], game_data['moves'], player, game_data['numducks'])
+                gamesData[player] = tmpGame
 
     def writeGamesData(): # writes all of the game info back into save.json
         tmpGameSave = {}
@@ -161,23 +156,74 @@ class Game:
                     'numducks': game.numducks   
                 }
             tmpGameSave[player] = tmpData
-
+            
         with open(saveGameFile, 'w') as file:
             json.dump(tmpGameSave, file, indent=4)   
 
+    def giveSurroundings(self,startx,starty): # returns a 2d array of a 3x3 around the given coordinates
+        mainList = [[],[],[]]
+        for y in range(-1,2):
+            for x in range(-1,2):
+                mainList[y+1].append(self.getduck(startx+x,starty+y))
+        return(mainList)
+
+    def getduck(self,x,y): # just gets the duck status of the grid tile at the position (x,y), if it is outside the board it returns False
+        if (0 <= x <= self.size-1) and (0 <= y <= self.size-1):
+            return self.board[x][y][0]
+        return False    
+
+    def runGameLoop(self):
+        win = False
+        while not win:
+            # print(game.board[1],"adfadfsfasdfadsasgasdf") # Debugging
+            print(self.generateBoardVisuals())
+            print("what action do you want to do?")
+            print("\t1. reveal a position")
+            print("\t2. try to guess the amounty to guess the amount")
+            print("\t3. exit (game progress will be saved)")
+            decision =  inputChecker('\t\t', int)
+
+            # Decision Tree
+            if decision == 1:
+                print("where do you want to check? (ex. b2, h6, etc.)")
+                move = str(input())
+                validmove = self.reveal(move)
+                if not validmove:
+                    print("invalid input")
+                    input("press enter to continue:")      
+                else:
+                    self.moves +=1
+                if self.moves >= self.size**2 * maxGuesses:
+                    print("You have run out of moves")
+                    break
+            elif decision == 2:
+                print("what is your guess?")
+                guess = inputChecker('', int)
+                win = self.guess(guess)
+                
+            elif decision == 3:
+                self.saveGame()
+                break
+        if win:
+            return True
+        else:
+            return False
 class DuckPlayer:
-    def __init__(self, name, gamesWon, gamesLost, winStreak):
+    def __init__(self, name, gamesWon, gamesLost, score):
         self.name = name
         self.gamesWon = gamesWon
         self.gamesLost = gamesLost
-        self.winStreak = winStreak
+        self.score = score
         # self.gamePoints = gamePoints
 
     def loadplayer(): # checks what player the user wants to log in as and then returns player 
         global playersData
         playerloaded = False
         while not playerloaded:
-            name = input("Enter a username: ").lower()
+            name = inputChecker("Enter a username: ", str).lower()
+            if not all((c in usernameRegex) for c in name):
+                print("Invalid Name")
+                continue
             # print("name:",name)
             alreadyexists = False
             for i in playersData:
@@ -186,14 +232,14 @@ class DuckPlayer:
                     alreadyexists = True
                     break
             if alreadyexists:
-                decision = (inputChecker("There is already a player with the name: " + name + ", Would you like to continue as this person? (y/n)", ['y', 'n', 'Y', 'N'])).lower()
+                decision = (inputChecker("There is already a player with the name: " + name + ", Would you like to continue as this person? (y/n)", str)).lower()
                 if decision == 'y':
                     player = savedPlayer
                     playerloaded = True
                 elif decision == "n":
                     continue
             elif not alreadyexists:
-                decision = (str(inputChecker("want to make a new profile as " + name + "? (y/n)", ['y', 'n', 'Y', 'N']))).lower()
+                decision = (str(inputChecker("want to make a new profile as " + name + "? (y/n)", str))).lower()
                 if decision == 'y':
                     player = DuckPlayer(name,0,0,0)
                     playersData.append(player)
@@ -215,44 +261,28 @@ class DuckPlayer:
     def writePlayersData(): # writes the contents of playersData (the global list) back to playerData.txt
         with open(playersDataFile,"w") as file:
             for i in playersData:
-                file.write(i.name + "," + str(i.gamesWon) + "," + str(i.gamesLost) + "," + str(i.winStreak) + "\n")
-                
-    def giveSurroundings(startx,starty,game): # returns a 2d array of a 3x3 around the given coordinates
-        mainList = [[],[],[]]
-        for y in range(-1,2):
-            for x in range(-1,2):
-                mainList[y+1].append(getduck(startx+x,starty+y,game))
-        return(mainList)
+                file.write(i.name + "," + str(i.gamesWon) + "," + str(i.gamesLost) + "," + str(i.score) + "\n")
+    
+    def scoreUpdater(self,size):
+        if size == 5:
+            self.score += 100
+        if size == 6:
+            self.score += 300
+        if size == 7:
+            self.score += 500
+        if size == 8:
+            self.score += 1000
+        if size == 9:
+            self.score += 2000
+        if size == 10:
+            self.score += 5000
+        
 
-    def getduck(x,y,game): # just gets the duck status of the grid tile at the position (x,y), if it is outside the board it returns False
-        if (0 <= x <= game.size-1) and (0 <= y <= game.size-1):
-            return game.board[x][y][0]
-        else:
-            return False
 
-
-# def inputChecker(inputText, typeOfInput, min=0, max=0):
-#     while True:
-#         try:
-#             userInput = typeOfInput(input(inputText))
-#             if typeOfInput == str:
-                
-#                 return userInput
-#             if min <= userInput <= max:
-#                 return userInput
-#         except ValueError:
-#             continue
-
-def inputChecker(prompt, allowedInputs): # A function that makes sure the input given is correct
+def inputChecker(inputText, typeOfInput):
     while True:
-        newinput = input(prompt)
-        if newinput.isnumeric():
-            newinput = float(newinput)
-            if newinput % 1 == 0:
-                newinput = int(newinput)
-        if newinput in allowedInputs:
-            return newinput
-        else:
-            print("invalid input, try again")
-
-# number = inputChecker("pick a number between 0 and 9 and also a to c on the alphabet also is valid for some reason",[1,2,3,4,5,6,7,8,9,0,"a","b","c"])
+        try:
+            userInput = typeOfInput(input(inputText))
+            return userInput
+        except ValueError:
+            continue
