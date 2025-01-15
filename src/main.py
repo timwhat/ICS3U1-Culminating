@@ -20,17 +20,6 @@ def main():
         # Loop for finding the player (either making a new player of loading an existing one)
         player = DuckPlayer.loadplayer() # Player log in
         Game.loadGamesData() # Loads all of the saved games from save.json into gamesData
-
-        # print("loaded as",gamesData)
-        # s = input("size: ")
-        # b = input("board: ")
-        # m = input("moves: ")
-        # n = input("name: ")
-        # d = input("ducks: ")
-        # tempgame = Game(s,b,m,n,d)
-        # tempgame.saveGame()
-        # print(gamesData)
-
         
         # Main Menu
         choice = -1 # This just makes sure it goes into the loop, choice will get overwritten to not be -1
@@ -53,24 +42,17 @@ def main():
                 for h,i in enumerate(range(boardSize[0],boardSize[1])):
                     print(str(h+1)+": "+str(i)+"x"+str(i))
                 tmpBoardSize = inputChecker('What difficulty do you want to play?: \t', int)
-
                 # Initializes the game object (with 0 as a temporary placeholder for ducknum)
                 currentGame = Game(tmpBoardSize+boardSize[0]-1,[],0,player.name,0)
-                
-                # Decides how many ducks there should be, minimum a quarter of the board, maximum half
-                numoftiles = (currentGame.size)**2
+                numoftiles = (currentGame.size)**2 # determines the number of total tiles in the board
+                 # Decides how many ducks there should be, minimum a quarter of the board, maximum half
                 currentGame.numducks = int(numoftiles //4 + (random.randint(0,100)* 0.01 * numoftiles)//4)
-                # print("ducks generated:",currentGame.numducks) # Debugging
-
-                # Generates the board
-                currentGame.generateBoard()
-
-                print(currentGame.board)
+                currentGame.generateBoard() # Generates the board
                 result = currentGame.runGameLoop() # Game Loop
                 if not result[1]:
                     player.scoreUpdater(currentGame.size, result[0])
-                # else then thhe game will save
-                    
+                # else then it just exits out
+            
             elif choice == 2:
                 textSeperator()
                 print('Load Game')
@@ -80,12 +62,10 @@ def main():
                         result = currentGame.runGameLoop() # Game Loop
                         if not result[1]:
                             player.scoreUpdater(currentGame.size, result[0])
-                        # else then thhe game will save
-                else:
+                        # else then it just exits out
+                else: # If the player has no games
                     print('No game found for this player')
                     input('\nPress Enter to Continue')
-                    # continue
-                
 
             # Current Selected Player Statistics
             elif choice == 3:
@@ -100,7 +80,6 @@ def main():
 
             # Leaderboard
             elif choice == 4:
-                # TODO Add colors to the leaderboard
                 leaderboard = sorted(playersData, key=lambda x: x.score, reverse=True)
                 textSeperator()
                 print('Leaderboard:\n')

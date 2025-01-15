@@ -271,6 +271,7 @@ class DuckPlayer:
                     continue
         return player
 
+    # Loads the player data from playerData.txt into playersData (the global list)
     def loadPlayersData():
         global playersData
         with open(playersDataFile, "r") as file:
@@ -281,11 +282,13 @@ class DuckPlayer:
                 data = playerData.split(",")
                 playersData.append(DuckPlayer(data[0], int(data[1]), int(data[2]), int(data[3])))
 
-    def writePlayersData(): # writes the contents of playersData (the global list) back to playerData.txt
+    # writes the contents of playersData (the global list) back to playerData.txt
+    def writePlayersData():
         with open(playersDataFile,"w") as file:
             for i in playersData:
                 file.write(i.name + "," + str(i.gamesWon) + "," + str(i.gamesLost) + "," + str(i.score) + "\n")
     
+    # Updates the score of the player
     def scoreUpdater(self,size,win):
         if win:
             self.gamesWon += 1
@@ -308,7 +311,7 @@ class DuckPlayer:
         elif not win:
             self.gamesLost += 1
 
-
+# Input Checker, to make sure the input is the right type
 def inputChecker(inputText = '', typeOfInput = str):
     while True:
         try:
@@ -317,6 +320,7 @@ def inputChecker(inputText = '', typeOfInput = str):
         except ValueError:
             continue
 
+# Yes or No input checker, so we can ask the user a yes or no question and have it abstracted
 def yesOrNo(inputText):
     while True:
         userInput = input(inputText).lower()
