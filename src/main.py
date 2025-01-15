@@ -16,6 +16,11 @@ def main():
     # Main Game Loop
     # Contains logic on selecting the player, then goes into the game loop when the player is selected
     # Works such that when they exit it loops back to user select
+
+    textSeperator()
+
+    print("Welcome to Ducksweeper!")
+
     while(True):
         # Asks for the users name (not case sentisive)
         # Loop for finding the player (either making a new player of loading an existing one)
@@ -60,7 +65,7 @@ def main():
             
             elif choice == 2:
                 textSeperator()
-                slowPrint(0.01, 'Checking Games')
+                slowPrint(0.02, 'Checking Games...\n')
                 if player.name in gamesData:
                     if yesOrNo('Previous game found you want to load the game? (y/n): '):
                         textSeperator()

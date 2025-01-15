@@ -249,7 +249,7 @@ class DuckPlayer:
         global playersData
         playerloaded = False
         while not playerloaded:
-            name = inputChecker("Enter a username: ", str).lower()
+            name = inputChecker("Enter a username to start: ", str).lower()
             if not all((c in usernameRegex) for c in name):
                 print("Invalid Name")
                 continue
