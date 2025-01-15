@@ -55,33 +55,36 @@ def main():
                 tmpBoardSize = inputChecker('What difficulty do you want to play?: \t', int)
 
                 # Initializes the game object (with 0 as a temporary placeholder for ducknum)
-                currentGame = Game(tmpBoardSize+4,[],0,player.name,0)
+                currentGame = Game(tmpBoardSize+boardSize[0]-1,[],0,player.name,0)
                 
                 # Decides how many ducks there should be, minimum a quarter of the board, maximum half
                 numoftiles = (currentGame.size)**2
                 currentGame.numducks = int(numoftiles //4 + (random.randint(0,100)* 0.01 * numoftiles)//4)
-                # print("ducks generated:",game.numducks) # Debugging
+                # print("ducks generated:",currentGame.numducks) # Debugging
 
                 # Generates the board
                 currentGame.generateBoard()
 
                 print(currentGame.board)
-                win = currentGame.runGameLoop() # Game Loop
-                if win:
-                    player.scoreUpdater(currentGame.size)
-                     
+                result = currentGame.runGameLoop() # Game Loop
+                if not result[1]:
+                    player.scoreUpdater(currentGame.size, result[0])
+                # else then thhe game will save
+                    
             elif choice == 2:
                 textSeperator()
                 print('Load Game')
                 if player.name in gamesData:
-                    currentGame = gamesData[player.name]
-                    win = currentGame.runGameLoop()
+                    if yesOrNo('Do you want to load the game? (y/n): '):
+                        currentGame = gamesData[player.name]
+                        result = currentGame.runGameLoop() # Game Loop
+                        if not result[1]:
+                            player.scoreUpdater(currentGame.size, result[0])
+                        # else then thhe game will save
                 else:
                     print('No game found for this player')
                     input('\nPress Enter to Continue')
-                    continue
-                if win:
-                    player.scoreUpdater(currentGame.size)
+                    # continue
                 
 
             # Current Selected Player Statistics

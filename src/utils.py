@@ -25,11 +25,11 @@ usernameRegex = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567
 letterLegend = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j']
 
 # Board sizes
-boardSize = [5,11]
+boardSize = [3,11]
 
 # Board difficulties hard coded as we want everyone to play on a equal playing field
-mostRevealed = .75
-maxGuesses = .25
+mostRevealed = .6
+maxGuesses = .2
 
 # Used to visually seperate text in the terminal
 def textSeperator():
@@ -39,12 +39,13 @@ def textSeperator():
 
 # player to keep track of whos board it is
 class Game: 
-    def __init__(self, size, board, moves, player, numducks):
+    def __init__(self, size, board, moves, player, numducks, guesses=0):
         self.size = size
         self.board = board
         self.moves = moves
         self.player = player
         self.numducks = numducks
+        self.guesses = guesses
 
     # Generates the game board for the first time (when starting the game)
     def generateBoard(self):
@@ -111,15 +112,18 @@ class Game:
 
     # Sets the grid tile at that position's index of 2 to True
     def reveal(self, pos):
-        y = int(pos[1])-1
-        x = letterLegend.index(pos[0])
+        try:
+            y = int(pos[1])-1
+            x = letterLegend.index(pos[0])
 
-        # print(x,y,"was revealed") # Debugging
+            # print(x,y,"was revealed") # Debugging
 
-        if self.board[x][y][2] == False and (x < self.size) and (x < self.size):
-            self.board[x][y][2] = True
-            return True
-        else:
+            if self.board[x][y][2] == False and (x < self.size) and (x < self.size):
+                self.board[x][y][2] = True
+                return True
+            else:
+                return False
+        except (ValueError, IndexError):
             return False
     
     # 
@@ -129,7 +133,6 @@ class Game:
             return True
         else:
             print("*extremely loud incorrect buzzer noise*")
-            input("press enter to continue:")
             return False
 
     def saveGame(self): # takes the current game after the user exits and loads it into gamesData
@@ -145,7 +148,7 @@ class Game:
         print("tmpgamedata is",tmpGameData)
         for player in tmpGameData:
                 game_data = tmpGameData[player]
-                tmpGame = Game(game_data['size'], game_data['board'], game_data['moves'], player, game_data['numducks'])
+                tmpGame = Game(game_data['size'], game_data['board'], game_data['moves'], player, game_data['numducks'], game_data['guesses'])
                 gamesData[player] = tmpGame
 
     def writeGamesData(): # writes all of the game info back into save.json
@@ -156,7 +159,8 @@ class Game:
                     'size': game.size,
                     'board': game.board,
                     'moves': game.moves,
-                    'numducks': game.numducks   
+                    'numducks': game.numducks,   
+                    'guesses': game.guesses,
                 }
             tmpGameSave[player] = tmpData
             
@@ -177,6 +181,7 @@ class Game:
 
     def runGameLoop(self):
         win = False
+        exitGame = False
         while not win:
             # print(game.board[1],"adfadfsfasdfadsasgasdf") # Debugging
             print(self.generateBoardVisuals())
@@ -187,36 +192,45 @@ class Game:
             decision =  inputChecker('\t\t', int)
 
             # Decision Tree
+            # Revealing a position
             if decision == 1:
-                print("where do you want to check? (ex. b2, h6, etc.)")
-                move = str(input())
+                movesLeft = self.size**2 * mostRevealed - self.moves
+                if movesLeft < 5:
+                    print('You have', int(movesLeft), 'moves left')
+                move = inputChecker('where do you want to check? (ex. b2, h6, etc.): \t')
                 validmove = self.reveal(move)
                 if not validmove:
                     print("invalid input")
                     input("press enter to continue:")      
                 else:
+                    if movesLeft <= 1:
+                        print("Game Over! You ran out of moves")
+                        input("\tPress enter to continue:")
+                        win = False 
+                        break
                     self.moves +=1
-                    if self.size**2 * maxGuesses - self.moves< 5:
-                        print('You have', self.size**2 * maxGuesses - self.moves, 'moves left')
-                if self.moves >= self.size**2 * maxGuesses:
 
-                    textSeperator()
-                    print("\tGame Over")
-                    print("\tYou ran out of moves")
-                    input("\tPress enter to continue:")
-                    break
+            # Guessing the amount of ducks
             elif decision == 2:
-                print("what is your guess?")
-                guess = inputChecker('', int)
+                guessesLeft = self.size**2 * maxGuesses - self.guesses
+                if guessesLeft < 5:
+                    print('You have', int(guessesLeft + 1), 'guesses left')
+                guess = inputChecker('What is your guess?\t', int)
+                self.guesses += 1
                 win = self.guess(guess)
-                
+                if not win and guessesLeft <= 1:
+                        print('Game Over! You ran out of guesses')
+                        input("\tPress enter to continue:")
+                        win = False
+                        break
+                input("press enter to continue:")
+            # Exiting the game
             elif decision == 3:
                 self.saveGame()
+                exitGame = True
                 break
-        if win:
-            return True
-        else:
-            return False
+        return [win, exitGame]
+    
 class DuckPlayer:
     def __init__(self, name, gamesWon, gamesLost, score):
         self.name = name
@@ -241,19 +255,19 @@ class DuckPlayer:
                     alreadyexists = True
                     break
             if alreadyexists:
-                decision = (inputChecker("There is already a player with the name: " + name + ", Would you like to continue as this person? (y/n):\t", str)).lower()
-                if decision == 'y':
+                decision = yesOrNo("There is already a player with the name: " + name + ", Would you like to continue as this person? (y/n):\t")
+                if decision:
                     player = savedPlayer
                     playerloaded = True
-                elif decision == "n":
+                elif decision == False:
                     continue
             elif not alreadyexists:
-                decision = (str(inputChecker("want to make a new profile as " + name + "? (y/n):\t", str))).lower()
-                if decision == 'y':
+                decision = yesOrNo("want to make a new profile as " + name + "? (y/n):\t")
+                if decision:
                     player = DuckPlayer(name,0,0,0)
                     playersData.append(player)
                     playerloaded = True
-                elif decision == "n":
+                elif decision == False:
                     continue
         return player
 
@@ -272,27 +286,43 @@ class DuckPlayer:
             for i in playersData:
                 file.write(i.name + "," + str(i.gamesWon) + "," + str(i.gamesLost) + "," + str(i.score) + "\n")
     
-    def scoreUpdater(self,size):
-        self.gamesWon += 1
-        if size == 5:
-            self.score += 100
-        if size == 6:
-            self.score += 300
-        if size == 7:
-            self.score += 500
-        if size == 8:
-            self.score += 1000
-        if size == 9:
-            self.score += 2000
-        if size == 10:
-            self.score += 5000
-        
+    def scoreUpdater(self,size,win):
+        if win:
+            self.gamesWon += 1
+            if size == 3:
+                self.score += 30
+            elif size == 4:
+                self.score += 50
+            elif size == 5:
+                self.score += 100
+            elif size == 6:
+                self.score += 300
+            elif size == 7:
+                self.score += 500
+            elif size == 8:
+                self.score += 1000
+            elif size == 9:
+                self.score += 3000
+            elif size == 10:
+                self.score += 5000
+        elif not win:
+            self.gamesLost += 1
 
 
-def inputChecker(inputText, typeOfInput):
+def inputChecker(inputText = '', typeOfInput = str):
     while True:
         try:
             userInput = typeOfInput(input(inputText))
             return userInput
         except ValueError:
+            continue
+
+def yesOrNo(inputText):
+    while True:
+        userInput = input(inputText).lower()
+        if userInput == "y":
+            return True
+        elif userInput == "n":
+            return False
+        else:
             continue

@@ -1,1 +1,2 @@
- This game needs you to install [prettytable](https://pypi.org/project/prettytable/) (only aesthetic changes, doesn't affect the actual gameplay)
+Dependencies [prettytable](https://pypi.org/project/prettytable/)
+Try to not resize the terminal while playing or else the used pretty table will visually break
