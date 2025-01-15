@@ -1,25 +1,61 @@
 {
-  "tim": {
-    "size": 3,
-    "board": [
-      [
-        [false, 1, false],
-        [false, 1, false],
-        [false, 0, false]
-      ],
-      [
-        [true, 2, false],
-        [false, 2, false],
-        [false, 1, false]
-      ],
-      [
-        [false, 2, false],
-        [true, 2, false],
-        [false, 1, false]
-      ]
-    ],
-    "moves": 0,
-    "numducks": 2,
-    "guesses": 0
-  }
+    "tim": {
+        "size": 3,
+        "board": [
+            [
+                [
+                    false,
+                    1,
+                    false
+                ],
+                [
+                    false,
+                    1,
+                    false
+                ],
+                [
+                    false,
+                    0,
+                    false
+                ]
+            ],
+            [
+                [
+                    true,
+                    2,
+                    false
+                ],
+                [
+                    false,
+                    2,
+                    false
+                ],
+                [
+                    false,
+                    1,
+                    false
+                ]
+            ],
+            [
+                [
+                    false,
+                    2,
+                    false
+                ],
+                [
+                    true,
+                    2,
+                    false
+                ],
+                [
+                    false,
+                    1,
+                    false
+                ]
+            ]
+        ],
+        "moves": 0,
+        "numducks": 2,
+        "guesses": 0
+    }
 }

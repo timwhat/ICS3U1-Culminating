@@ -34,7 +34,7 @@ maxGuesses = .2
 
 # Used to visually seperate text in the terminal
 def textSeperator():
-    # print('\n')
+    print('\n')
     slowPrint(0.005, '/************************************************************************/')
     print('\n')
 
@@ -127,12 +127,12 @@ class Game:
         except (ValueError, IndexError):
             return False
     
-    # 
+    # Checks if the user's guess is correct
     def guess(self,guess):
         if guess == self.numducks:
             time.sleep(1)
             textSeperator()
-            print("\n\tCorrect!")
+            print("\tCorrect!")
             print('*celebration noises*')
             input("press enter to continue:")
             return True
@@ -156,7 +156,8 @@ class Game:
                 tmpGame = Game(game_data['size'], game_data['board'], game_data['moves'], player, game_data['numducks'], game_data['guesses'])
                 gamesData[player] = tmpGame
 
-    def writeGamesData(): # writes all of the game info back into save.json
+    # Writes all of the game info back into save.json
+    def writeGamesData(): 
         tmpGameSave = {}
         for player in gamesData:
             game = gamesData[player]
@@ -171,8 +172,8 @@ class Game:
             
         with open(saveGameFile, 'w') as file:
             json.dump(tmpGameSave, file, indent=4)   
-
-    def giveSurroundings(self,startx,starty): # returns a 2d array of a 3x3 around the given coordinates
+    # Returns a 2d array of a 3x3 around the given coordinates
+    def giveSurroundings(self,startx,starty): 
         mainList = [[],[],[]]
         for y in range(-1,2):
             for x in range(-1,2):
@@ -228,13 +229,11 @@ class Game:
                         input("\tPress enter to continue:")
                         win = False
                         break
-                input("press enter to continue:")
             # Exiting the game
             elif decision == 3:
                 self.saveGame()
                 exitGame = True
                 break
-            textSeperator()
         return [win, exitGame]
     
 class DuckPlayer:
@@ -245,7 +244,8 @@ class DuckPlayer:
         self.score = score
         # self.gamePoints = gamePoints
 
-    def loadplayer(): # checks what player the user wants to log in as and then returns player 
+    # Checks what player the user wants to log in as and then returns player 
+    def loadplayer():
         global playersData
         playerloaded = False
         while not playerloaded:
