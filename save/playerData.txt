@@ -3,4 +3,4 @@ justin,0,0,0
 michael,0,0,0
 dominic,1,0,0
 ethan,1,0,100
-tim,3,0,30
+tim,3,1,30

@@ -3,6 +3,7 @@
 # Imports
 import random
 import json
+import time
 import os
 fileDirectory = os.path.dirname(os.path.abspath(__file__))
 parentDirectory = os.path.dirname(fileDirectory)
@@ -33,8 +34,8 @@ maxGuesses = .2
 
 # Used to visually seperate text in the terminal
 def textSeperator():
-    print('\n')
-    print('/************************************************************************/')
+    # print('\n')
+    slowPrint(0.005, '/************************************************************************/')
     print('\n')
 
 # player to keep track of whos board it is
@@ -129,15 +130,17 @@ class Game:
     # 
     def guess(self,guess):
         if guess == self.numducks:
-            print("correct!")
+            time.sleep(1)
+            print("\n\tCorrect!")
+            print('*celebration noises*')
             return True
         else:
-            print("*extremely loud incorrect buzzer noise*")
+            print("\n*extremely loud incorrect buzzer noise*")
             return False
 
     def saveGame(self): # takes the current game after the user exits and loads it into gamesData
         global gamesData
-        print(self.player)
+        # print(self.player) # Debugging
         gamesData[self.player] = self
         
 
@@ -145,7 +148,7 @@ class Game:
         global gamesData
         with open(saveGameFile, "r") as file:
             tmpGameData = json.load(file)
-        print("tmpgamedata is",tmpGameData)
+        # print("tmpgamedata is",tmpGameData)
         for player in tmpGameData:
                 game_data = tmpGameData[player]
                 tmpGame = Game(game_data['size'], game_data['board'], game_data['moves'], player, game_data['numducks'], game_data['guesses'])
@@ -183,25 +186,28 @@ class Game:
         win = False
         exitGame = False
         while not win:
+            movesLeft = int(self.size**2 * mostRevealed - self.moves)
+            guessesLeft = int(self.size**2 * maxGuesses - self.guesses)
             # print(game.board[1],"adfadfsfasdfadsasgasdf") # Debugging
-            print(self.generateBoardVisuals())
-            print("what action do you want to do?")
-            print("\t1. reveal a position")
-            print("\t2. try to guess the amount")
-            print("\t3. exit (game progress will be saved)")
+            slowPrint(0.001, self.generateBoardVisuals())
+            slowPrint(0.005, "\nWhat action do you want to do?\n")
+            slowPrint(0.005, "\t1. Reveal a position\n")
+            slowPrint(0.005, "\t2. Try to guess the amount\n")
+            slowPrint(0.005, "\t3. Exit (game progress will be saved)\n")
+            slowPrint(0.005, "You have ", movesLeft, "moves and", guessesLeft, "guesses left\n")
+
             decision =  inputChecker('\t\t', int)
 
             # Decision Tree
             # Revealing a position
             if decision == 1:
-                movesLeft = self.size**2 * mostRevealed - self.moves
                 if movesLeft < 5:
                     print('You have', int(movesLeft), 'moves left')
-                move = inputChecker('where do you want to check? (ex. b2, h6, etc.): \t')
+                move = inputChecker('Where do you want to check? (ex. b2, h6, etc.): \t')
                 validmove = self.reveal(move)
                 if not validmove:
-                    print("invalid input")
-                    input("press enter to continue:")      
+                    print("\tInvalid input")
+                    input("Press enter to continue:")      
                 else:
                     if movesLeft <= 1:
                         print("Game Over! You ran out of moves")
@@ -212,9 +218,8 @@ class Game:
 
             # Guessing the amount of ducks
             elif decision == 2:
-                guessesLeft = self.size**2 * maxGuesses - self.guesses
-                if guessesLeft < 5:
-                    print('You have', int(guessesLeft + 1), 'guesses left')
+                # if guessesLeft < 5:
+                #     print('You have', int(guessesLeft + 1), 'guesses left')
                 guess = inputChecker('What is your guess?\t', int)
                 self.guesses += 1
                 win = self.guess(guess)
@@ -229,6 +234,7 @@ class Game:
                 self.saveGame()
                 exitGame = True
                 break
+            textSeperator()
         return [win, exitGame]
     
 class DuckPlayer:
@@ -255,7 +261,8 @@ class DuckPlayer:
                     alreadyexists = True
                     break
             if alreadyexists:
-                decision = yesOrNo("There is already a player with the name: " + name + ", Would you like to continue as this person? (y/n):\t")
+                decision = yesOrNo("\nThere is already a player with the name: " + name + ", Would you like to continue as this person? (y/n):\t")
+                print()
                 if decision:
                     player = savedPlayer
                     playerloaded = True
@@ -269,6 +276,7 @@ class DuckPlayer:
                     playerloaded = True
                 elif decision == False:
                     continue
+            time.sleep(1.5)
         return player
 
     # Loads the player data from playerData.txt into playersData (the global list)
@@ -330,3 +338,12 @@ def yesOrNo(inputText):
             return False
         else:
             continue
+
+# slow typing
+def slowPrint( delay, *args):
+    text = ' '.join(map(str, args))
+    for char in text:
+        print(char, end='', flush=True)
+        time.sleep(delay)
+    # print()
+    
