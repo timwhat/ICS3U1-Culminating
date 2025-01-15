@@ -32,6 +32,7 @@ def main():
             slowPrint(0.002, '4. Leaderboard\n')
             slowPrint(0.002, '5. Save and Exit\n')
             choice = inputChecker('Choose an option: ', int)
+            print()
             time.sleep(0.5)
 
             # IMPORTANT: instead of having seperate new game and load functions, have one load game function

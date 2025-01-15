@@ -131,8 +131,10 @@ class Game:
     def guess(self,guess):
         if guess == self.numducks:
             time.sleep(1)
+            textSeperator()
             print("\n\tCorrect!")
             print('*celebration noises*')
+            input("press enter to continue:")
             return True
         else:
             print("\n*extremely loud incorrect buzzer noise*")
@@ -201,8 +203,8 @@ class Game:
             # Decision Tree
             # Revealing a position
             if decision == 1:
-                if movesLeft < 5:
-                    print('You have', int(movesLeft), 'moves left')
+                # if movesLeft < 5:
+                #     print('You have', int(movesLeft), 'moves left')
                 move = inputChecker('Where do you want to check? (ex. b2, h6, etc.): \t')
                 validmove = self.reveal(move)
                 if not validmove:
@@ -210,10 +212,8 @@ class Game:
                     input("Press enter to continue:")      
                 else:
                     if movesLeft <= 1:
-                        print("Game Over! You ran out of moves")
+                        print("You ran out of moves, you can only guess now!")
                         input("\tPress enter to continue:")
-                        win = False 
-                        break
                     self.moves +=1
 
             # Guessing the amount of ducks
