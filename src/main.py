@@ -91,11 +91,11 @@ def main():
 
             # Leaderboard
             elif choice == 4:
-                leaderboard = sorted(playersData, key=lambda x: x.score, reverse=True)
+                leaderboard = sorted(playersData.values(), key=lambda x: int(x.score), reverse=True)
                 textSeperator()
                 slowPrint(0.005,'Leaderboard:\n\n')
                 for i in leaderboard:
-                    slowPrint(0.005,'\t' + i.name + ": " + str(i.score)+'\n')
+                    slowPrint(0.005, f'\t{i.name}: {str(i.score)}\n')
                 input('\n\tPress Enter to Continue')
             
             # Save and Exit
