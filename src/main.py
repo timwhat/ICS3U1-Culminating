@@ -67,7 +67,7 @@ def main():
                 textSeperator()
                 slowPrint(0.02, 'Checking Games...\n')
                 if player.name in gamesData:
-                    if yesOrNo('Previous game found you want to load the game? (y/n): '):
+                    if yesOrNo('Previous game found, would you like to load that game? (y/n): '):
                         textSeperator()
                         currentGame = gamesData[player.name]
                         result = currentGame.runGameLoop() # Game Loop

@@ -134,7 +134,7 @@ class Game:
             textSeperator()
             print("\tCorrect!")
             print('*celebration noises*')
-            input("press enter to continue:")
+            input("Press enter to continue:")
             return True
         else:
             print("\n*extremely loud incorrect buzzer noise*")
@@ -269,7 +269,7 @@ class DuckPlayer:
                 elif decision == False:
                     continue
             elif not alreadyexists:
-                decision = yesOrNo("want to make a new profile as " + name + "? (y/n):\t")
+                decision = yesOrNo("Want to make a new profile as " + name + "? (y/n):\t")
                 if decision:
                     player = DuckPlayer(name,0,0,0)
                     playersData.append(player)
