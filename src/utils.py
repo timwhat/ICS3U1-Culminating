@@ -12,7 +12,7 @@ parentDirectory = os.path.dirname(fileDirectory)
 from prettytable import PrettyTable
 
 # Global Variables
-playersData = []
+playersData = {}
 gamesData = {}
 
 # Config
@@ -244,51 +244,44 @@ class DuckPlayer:
         self.score = score
         # self.gamePoints = gamePoints
 
+    def __str__(self):
+        return f"DuckPlayer({self.name}, {self.gamesWon}, {self.gamesLost}, {self.score})"
+
     # Checks what player the user wants to log in as and then returns player 
     def loadplayer():
         global playersData
-        playerloaded = False
-        while not playerloaded:
+        while True:
             name = inputChecker("Enter a username to start: ", str).lower()
             if not all((c in usernameRegex) for c in name):
                 print("Invalid Name")
                 continue
             # print("name:",name)
-            alreadyexists = False
-            for i in playersData:
-                savedPlayer = i
-                if i.name == name:
-                    alreadyexists = True
-                    break
-            if alreadyexists:
+            
+            if name in playersData:
                 decision = yesOrNo("\nThere is already a player with the name: " + name + ", Would you like to continue as this person? (y/n):\t")
                 print()
-                if decision:
-                    player = savedPlayer
-                    playerloaded = True
-                elif decision == False:
+                if not decision:
                     continue
-            elif not alreadyexists:
+                player = playersData[name]
+
+            else:
                 decision = yesOrNo("Want to make a new profile as " + name + "? (y/n):\t")
-                if decision:
-                    player = DuckPlayer(name,0,0,0)
-                    playersData.append(player)
-                    playerloaded = True
-                elif decision == False:
+                if not decision:
                     continue
+                player = DuckPlayer(name, 0, 0, 0)
+                playersData[name] = player
+            
             time.sleep(1.5)
+            break
         return player
 
     # Loads the player data from playerData.txt into playersData (the global list)
     def loadPlayersData():
         global playersData
-        with open(playersDataFile, "r") as file:
-            tmpPlayersData = file.read().strip().split("\n")
-
-        for playerData in tmpPlayersData:
-            if playerData:
+        for playerData in open(playersDataFile, "r").read().strip().split("\n"):
+            if playerData != "":
                 data = playerData.split(",")
-                playersData.append(DuckPlayer(data[0], int(data[1]), int(data[2]), int(data[3])))
+                playersData[data[0]] = DuckPlayer(*data)
 
     # writes the contents of playersData (the global list) back to playerData.txt
     def writePlayersData():
@@ -300,23 +293,9 @@ class DuckPlayer:
     def scoreUpdater(self,size,win):
         if win:
             self.gamesWon += 1
-            if size == 3:
-                self.score += 30
-            elif size == 4:
-                self.score += 50
-            elif size == 5:
-                self.score += 100
-            elif size == 6:
-                self.score += 300
-            elif size == 7:
-                self.score += 500
-            elif size == 8:
-                self.score += 1000
-            elif size == 9:
-                self.score += 3000
-            elif size == 10:
-                self.score += 5000
-        elif not win:
+            score_map = {3:30, 4:50, 5:100, 6:300, 7:500, 8:1000, 9:3000, 10:5000}
+            self.score += score_map[size]
+        else:
             self.gamesLost += 1
 
 # Input Checker, to make sure the input is the right type
@@ -340,7 +319,7 @@ def yesOrNo(inputText):
             continue
 
 # slow typing
-def slowPrint( delay, *args):
+def slowPrint(delay, *args):
     text = ' '.join(map(str, args))
     for char in text:
         print(char, end='', flush=True)
